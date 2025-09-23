@@ -26,17 +26,15 @@ const vagas = [
       latitude: -23.551,
       longitude: -46.634
     },
-    // Adicione a localização antes de precoPorHora
-localizacao: {
-  latitude: -23.551,
-  longitude: -46.634
-},
-precoPorHora: 12.00,
-tipo: 'descoberta',
-descricao: 'Vaga ampla, bem no centro da cidade. Ideal para quem trabalha na região.',
-fotos: []
+    precoPorHora: 12.00,
+    tipo: 'descoberta',
+    descricao: 'Vaga ampla, bem no centro da cidade. Ideal para quem trabalha na região.',
+    fotos: [
+      'https://via.placeholder.com/150/FF0000/FFFFFF?text=Vaga+2',
+      'https://via.placeholder.com/150/FF0000/FFFFFF?text=Vaga+2'
+    ],
   },
-  // Adicione mais vagas aqui...
+  // Adicione mais vagas aqui com a propriedade localizacao!
 ];
 
 export function getAllVagas() {

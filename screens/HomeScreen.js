@@ -3,12 +3,10 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { logoutUser } from "../services/authService";
 
-// screens/HomeScreen.js
-// ... (outros imports)
-
 export default function HomeScreen({ navigation }) {
   const handleLogout = async () => {
-    // ...
+    await logoutUser();
+    navigation.replace("Login");
   };
 
   return (
@@ -33,15 +31,15 @@ export default function HomeScreen({ navigation }) {
         </Text>
       </TouchableOpacity>
 
-      {/* Botão para o Locador - Gerenciar Minhas Vagas */}
-      <TouchableOpacity
-        style={[globalStyles.button, { backgroundColor: "#4CAF50" }]}
-        onPress={() => navigation.navigate("MyVagas")}
-      >
-        <Text style={[globalStyles.buttonText, { color: "#fff" }]}>
-          Minhas Vagas
-        </Text>
-      </TouchableOpacity>
+      {/* Botão para o Locador - Gerenciar Minhas Vagas */}
+      <TouchableOpacity
+        style={[globalStyles.button, { backgroundColor: "#4CAF50" }]}
+        onPress={() => navigation.navigate("MyVagas")}
+      >
+        <Text style={[globalStyles.buttonText, { color: "#fff" }]}>
+          Minhas Vagas
+        </Text>
+      </TouchableOpacity>
       
       {/* Botão de Sair */}
       <TouchableOpacity style={globalStyles.button} onPress={handleLogout}>

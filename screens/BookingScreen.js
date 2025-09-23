@@ -5,7 +5,7 @@ import { colors } from "../styles/colors";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export default function BookingScreen({ navigation, route }) {
-  const { vagaId, vagaNome } = route.params;
+  const { vagaId, vagaNome, localizacao } = route.params;
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
 
@@ -36,13 +36,13 @@ export default function BookingScreen({ navigation, route }) {
       <Text style={globalStyles.title}>Agendar Reserva</Text>
       <Text style={styles.vagaText}>Vaga: {vagaNome}</Text>
 
-      {/* Botão para ver a vaga no mapa */}
-      <TouchableOpacity
-        style={[globalStyles.button, { backgroundColor: '#3498db' }]}
-        onPress={() => navigation.navigate('Map', { localizacao, nome: vagaNome })}
-      >
-        <Text style={globalStyles.buttonText}>Ver no Mapa</Text>
-      </TouchableOpacity>
+      {/* Botão para ver a vaga no mapa */}
+      <TouchableOpacity
+        style={[globalStyles.button, { backgroundColor: '#3498db' }]}
+        onPress={() => navigation.navigate('Map', { localizacao, nome: vagaNome })}
+      >
+        <Text style={globalStyles.buttonText}>Ver no Mapa</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity 
         style={globalStyles.button} 

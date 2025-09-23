@@ -14,13 +14,18 @@ export default function DetailsScreen({ route, navigation }) {
   }, [vagaId]);
 
   const handleReserve = () => {
-    // Agora, passamos a localização para a tela de agendamento
-    navigation.navigate("Booking", {
-      vagaId: vaga.id,
-      vagaNome: vaga.nome,
-      localizacao: vaga.localizacao,
-    });
-  };
+    if (!vaga) {
+      Alert.alert("Aguarde", "Aguarde os detalhes da vaga carregarem.");
+      return;
+    }
+
+    // Agora, passamos a localização para a tela de agendamento
+    navigation.navigate("Booking", {
+      vagaId: vaga.id,
+      vagaNome: vaga.nome,
+      localizacao: vaga.localizacao,
+    });
+  };
 
   if (!vaga) {
     return (
