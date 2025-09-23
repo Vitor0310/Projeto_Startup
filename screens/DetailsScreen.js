@@ -1,3 +1,4 @@
+// screens/DetailsScreen.js
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
@@ -8,9 +9,11 @@ export default function DetailsScreen({ route, navigation }) {
   const [vaga, setVaga] = useState(null);
 
   useEffect(() => {
-    // Busca os detalhes da vaga usando o ID
-    const vagaEncontrada = getVagaById(vagaId);
-    setVaga(vagaEncontrada);
+    const fetchVaga = async () => {
+      const vagaEncontrada = await getVagaById(vagaId);
+      setVaga(vagaEncontrada);
+    };
+    fetchVaga();
   }, [vagaId]);
 
   const handleReserve = () => {
@@ -19,7 +22,6 @@ export default function DetailsScreen({ route, navigation }) {
       return;
     }
 
-    // Agora, passamos a localização para a tela de agendamento
     navigation.navigate("Booking", {
       vagaId: vaga.id,
       vagaNome: vaga.nome,
@@ -37,10 +39,12 @@ export default function DetailsScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.scrollView}>
-      <Image 
-        source={{ uri: vaga.fotos[0] }} 
-        style={styles.image} 
-      />
+      {vaga.fotos && vaga.fotos.length > 0 && (
+        <Image 
+          source={{ uri: vaga.fotos[0] }} 
+          style={styles.image} 
+        />
+      )}
 
       <View style={styles.detailsContainer}>
         <Text style={styles.vagaNome}>{vaga.nome}</Text>

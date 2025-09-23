@@ -5,19 +5,20 @@ import { getAllVagas } from "../services/vagaService";
 import { colors } from "../styles/colors";
 
 export default function SearchScreen({ navigation }) {
-  const [allVagas, setAllVagas] = useState([]); // A lista completa de vagas
-  const [filteredVagas, setFilteredVagas] = useState([]); // A lista filtrada para exibição
-  const [searchQuery, setSearchQuery] = useState(""); // O texto do campo de busca
+  const [allVagas, setAllVagas] = useState([]);
+  const [filteredVagas, setFilteredVagas] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    // Carrega as vagas do nosso serviço mock apenas uma vez
-    const vagasDisponiveis = getAllVagas();
-    setAllVagas(vagasDisponiveis);
-    setFilteredVagas(vagasDisponiveis);
+    const fetchVagas = async () => {
+      const vagasDisponiveis = await getAllVagas();
+      setAllVagas(vagasDisponiveis);
+      setFilteredVagas(vagasDisponiveis);
+    };
+    fetchVagas();
   }, []);
 
   useEffect(() => {
-    // Filtra as vagas sempre que o texto de busca mudar
     if (searchQuery === "") {
       setFilteredVagas(allVagas);
     } else {
