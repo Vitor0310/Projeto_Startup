@@ -1,37 +1,54 @@
-// services/authService.js
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// services/authService.js (AGORA COM FIREBASE AUTH REAL)
+import { auth } from "../firebaseConfig";
+import { 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut 
+} from "firebase/auth";
 
-const USER_KEY = "user";
-
+// A função de registro agora usa o Firebase Auth
 export async function registerUser(email, password) {
-  const user = { email, password };
-  await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
-  return user;
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        return userCredential.user; // Retorna o objeto User do Firebase (com o UID real!)
+    } catch (error) {
+        console.error("Firebase Registration Error:", error.code);
+        // Tratamento básico de erros comuns de cadastro
+        if (error.code === 'auth/email-already-in-use') {
+            throw new Error("Este e-mail já está cadastrado.");
+        } else if (error.code === 'auth/weak-password') {
+            throw new Error("A senha deve ter pelo menos 6 caracteres.");
+        }
+        throw new Error("Falha ao registrar usuário.");
+    }
 }
 
+// A função de login agora usa o Firebase Auth
 export async function loginUser(email, password) {
-  const stored = await AsyncStorage.getItem(USER_KEY);
-  if (!stored) return null;
-
-  const user = JSON.parse(stored);
-  if (user.email === email && user.password === password) {
-    return user;
-  }
-  return null;
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user; // Retorna o objeto User do Firebase
+    } catch (error) {
+        console.error("Firebase Login Error:", error.code);
+        if (error.code === 'auth/invalid-credential') { // Novo código de erro para credenciais inválidas (Firebase v9+)
+             throw new Error("E-mail ou senha inválidos.");
+        }
+        throw new Error("Falha ao fazer login.");
+    }
 }
 
-// Mock do login com Google
-export async function loginWithGoogle() {
-  const googleUser = { email: "user@gmail.com", provider: "google" };
-  await AsyncStorage.setItem(USER_KEY, JSON.stringify(googleUser));
-  return googleUser;
-}
-
-export async function getUser() {
-  const stored = await AsyncStorage.getItem(USER_KEY);
-  return stored ? JSON.parse(stored) : null;
-}
-
+// A função de logout agora usa o Firebase Auth
 export async function logoutUser() {
-  await AsyncStorage.removeItem(USER_KEY);
+    try {
+        await signOut(auth);
+        return true;
+    } catch (error) {
+        console.error("Firebase Logout Error:", error);
+        throw new Error("Falha ao fazer logout.");
+    }
+}
+
+// Para obter o usuário logado em qualquer lugar do app
+export function getCurrentUser() {
+    return auth.currentUser;
 }

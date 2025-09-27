@@ -16,23 +16,26 @@ export default function RegisterScreen({ navigation }) {
       Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
-    
-    // 1. Registro do usuário (Firebase Auth)
-    const user = await registerUser(email, password); 
 
-    if (user) {
-        // 2. CRIAÇÃO DO PERFIL NO FIRESTORE USANDO O UID REAL
-        const userId = user.uid; // <-- AGORA USAMOS O ID REAL DO FIREBASE AUTH
+    try {
+        // 1. Registro do usuário no Firebase Auth
+        const user = await registerUser(email, password); 
         
-        await updateProfile(userId, { 
-            nome,
-            telefone,
-        });
-        
-        Alert.alert("Sucesso", "Conta criada com sucesso!");
-        navigation.replace("Login");
-    } else {
-        Alert.alert("Erro", "Falha ao criar conta.");
+        if (user) {
+            // 2. CRIAÇÃO DO PERFIL NO FIRESTORE USANDO O UID REAL DO FIREBASE
+            const userId = user.uid; // <-- AGORA É O UID REAL
+            
+            await updateProfile(userId, { 
+                nome,
+                telefone,
+            });
+            
+            Alert.alert("Sucesso", "Conta criada com sucesso!");
+            navigation.replace("Login");
+        }
+    } catch (error) {
+        // Captura erros de autenticação e os exibe
+        Alert.alert("Erro de Cadastro", error.message);
     }
   };
 
