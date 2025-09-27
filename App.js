@@ -17,6 +17,7 @@ import CreateVagaScreen from "./screens/CreateVagaScreen";
 import MyVagasScreen from "./screens/MyVagasScreen";
 import BookingScreen from "./screens/BookingScreen";
 import MapScreen from "./screens/MapScreen";
+import UpdatePasswordScreen from "./screens/UpdatePasswordScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +38,7 @@ export default function App() {
         <Stack.Screen name="Map" component={MapScreen} />
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen name="UpdatePassword" component={UpdatePasswordScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

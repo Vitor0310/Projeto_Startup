@@ -1,10 +1,7 @@
 // services/authService.js (AGORA COM FIREBASE AUTH REAL)
 import { auth } from "../firebaseConfig";
-import { 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    signOut 
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 
 // A função de registro agora usa o Firebase Auth
 export async function registerUser(email, password) {
@@ -45,6 +42,37 @@ export async function logoutUser() {
     } catch (error) {
         console.error("Firebase Logout Error:", error);
         throw new Error("Falha ao fazer logout.");
+    }
+}
+
+export async function changePassword(currentPassword, newPassword) {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error("Nenhum usuário logado.");
+    }
+    
+    // 1. Cria uma credencial para reautenticação
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    
+    try {
+        // 2. Reautentica o usuário com a senha atual (obrigatório pelo Firebase)
+        await reauthenticateWithCredential(user, credential);
+        
+        // 3. Atualiza a senha
+        await updatePassword(user, newPassword);
+        return true;
+    } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+            throw new Error("Senha atual incorreta.");
+        }
+        if (error.code === 'auth/weak-password') {
+            throw new Error("A nova senha deve ter pelo menos 6 caracteres.");
+        }
+        if (error.code === 'auth/requires-recent-login') {
+            throw new Error("Sua sessão expirou. Por favor, faça login novamente.");
+        }
+        console.error("Erro ao trocar senha:", error);
+        throw new Error("Falha ao trocar senha. Tente novamente.");
     }
 }
 
