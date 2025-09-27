@@ -1,14 +1,8 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  Alert 
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { colors } from "../styles/colors";
+import { createVaga } from "../services/vagaService"; // <--- NOVO IMPORT
 
 export default function CreateVagaScreen({ navigation }) {
   const [nome, setNome] = useState("");
@@ -17,29 +11,33 @@ export default function CreateVagaScreen({ navigation }) {
   const [tipo, setTipo] = useState(""); // 'coberta' ou 'descoberta'
   const [descricao, setDescricao] = useState("");
 
-  const handleCreateVaga = () => {
-    // Validação simples
-    if (!nome || !endereco || !preco) {
+  const handleCreateVaga = async () => { // <-- Função agora é assíncrona
+    if (!nome || !endereco || !preco || !tipo || !descricao) {
       Alert.alert("Erro", "Preencha todos os campos obrigatórios.");
       return;
     }
-
+    
+    // Objeto com os dados a serem salvos no Firebase
     const novaVaga = {
-      id: Date.now().toString(), // ID temporário
       nome,
       endereco,
       precoPorHora: parseFloat(preco),
       tipo,
       descricao,
-      fotos: [], // Fotos serão adicionadas futuramente
-      localizacao: { latitude: 0, longitude: 0 }, // Localização será adicionada futuramente
+      locadorId: "mock-user-id",
+      dataCriacao: new Date().toISOString(),
+      localizacao: { latitude: -23.551, longitude: -46.634 }, // Coordenada padrão de SP
+      fotos: ["https://via.placeholder.com/150/007BFF/FFFFFF?text=Nova+Vaga"], 
     };
 
-    // Aqui você faria a chamada para o Firebase para salvar a nova vaga
-    console.log("Nova vaga a ser salva:", novaVaga);
-
-    Alert.alert("Sucesso", "Vaga cadastrada com sucesso!");
-    navigation.goBack();
+    try {
+      // Chamada real para salvar no Firebase
+      await createVaga(novaVaga);
+      Alert.alert("Sucesso", "Vaga cadastrada com sucesso!");
+      navigation.goBack(); 
+    } catch (error) {
+      Alert.alert("Erro", error.message);
+    }
   };
 
   return (

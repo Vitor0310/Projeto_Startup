@@ -1,26 +1,52 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { colors } from "../styles/colors";
 import { registerUser } from "../services/authService";
+import { updateProfile } from "../services/userService"; // <--- NOVO IMPORT
 
 export default function RegisterScreen({ navigation }) {
+  const [nome, setNome] = useState(""); // Novo estado para o nome (para ter um campo a mais)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [telefone, setTelefone] = useState(""); // <--- NOVO ESTADO
 
   const handleRegister = async () => {
-    if (!email || !password) {
+    if (!email || !password || !nome || !telefone) {
       Alert.alert("Erro", "Preencha todos os campos");
       return;
     }
-    await registerUser(email, password);
-    Alert.alert("Sucesso", "Conta criada com sucesso!");
-    navigation.replace("Login");
+    
+    // 1. Registro do usuário (Firebase Auth)
+    const user = await registerUser(email, password); 
+
+    if (user) {
+        // 2. CRIAÇÃO DO PERFIL NO FIRESTORE USANDO O UID REAL
+        const userId = user.uid; // <-- AGORA USAMOS O ID REAL DO FIREBASE AUTH
+        
+        await updateProfile(userId, { 
+            nome,
+            telefone,
+        });
+        
+        Alert.alert("Sucesso", "Conta criada com sucesso!");
+        navigation.replace("Login");
+    } else {
+        Alert.alert("Erro", "Falha ao criar conta.");
+    }
   };
 
   return (
-    <View style={globalStyles.container}>
+    <ScrollView contentContainerStyle={globalStyles.container}>
       <Text style={globalStyles.title}>Cadastro</Text>
+    
+      <TextInput
+        style={globalStyles.input}
+        placeholder="Nome Completo"
+        placeholderTextColor={colors.textSecondary}
+        value={nome}
+        onChangeText={setNome}
+      />
 
       <TextInput
         style={globalStyles.input}
@@ -28,6 +54,16 @@ export default function RegisterScreen({ navigation }) {
         placeholderTextColor={colors.textSecondary}
         value={email}
         onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+
+      <TextInput
+        style={globalStyles.input}
+        placeholder="Telefone"
+        placeholderTextColor={colors.textSecondary}
+        value={telefone}
+        onChangeText={setTelefone}
+        keyboardType="phone-pad"
       />
 
       <TextInput
@@ -46,6 +82,6 @@ export default function RegisterScreen({ navigation }) {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={globalStyles.link}>Voltar</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }

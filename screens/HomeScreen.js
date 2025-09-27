@@ -10,8 +10,16 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <View style={globalStyles.container}>
-      <Text style={globalStyles.title}>Bem-vindo à Home!</Text>
+    <View style={globalStyles.container}>
+            <Text style={globalStyles.title}>Bem-vindo(a)!</Text>
+
+            {/* O NOVO BOTÃO DE PERFIL/MINHA CONTA */}
+            <TouchableOpacity 
+                style={globalStyles.button} 
+                onPress={() => navigation.navigate('Profile')} // 'Profile' é o nome que está no seu App.js
+            >
+                <Text style={globalStyles.buttonText}>Minha Conta (Perfil)</Text>
+            </TouchableOpacity>
 
       {/* Botão para o Locatário */}
       <TouchableOpacity

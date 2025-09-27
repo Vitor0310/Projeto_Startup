@@ -8,7 +8,7 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
+  const handleLogin = async () =>{
     const user = await loginUser(email, password);
     if (user) {
       navigation.replace("Home");
@@ -17,7 +17,7 @@ export default function LoginScreen({ navigation }) {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async () =>{
     const user = await loginWithGoogle();
     if (user) {
       Alert.alert("Sucesso", `Logado como ${user.email}`);
@@ -59,11 +59,11 @@ export default function LoginScreen({ navigation }) {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("RecuperarSenha")}>
+      <TouchableOpacity onPress={() =>navigation.navigate("RecuperarSenha")}>
         <Text style={globalStyles.link}>Esqueci minha senha</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+      <TouchableOpacity onPress={() =>navigation.navigate("Register")}>
         <Text style={globalStyles.link}>Criar conta</Text>
       </TouchableOpacity>
     </View>
