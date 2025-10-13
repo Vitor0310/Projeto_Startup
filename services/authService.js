@@ -80,3 +80,30 @@ export async function changePassword(currentPassword, newPassword) {
 export function getCurrentUser() {
     return auth.currentUser;
 }
+
+// FUNÇÃO ATUALIZADA: Agora recebe a senha para reautenticar antes de deletar
+export async function deleteCurrentUserWithReauth(currentPassword) {
+    const user = auth.currentUser;
+    if (!user) {
+        throw new Error("Nenhum usuário logado.");
+    }
+    
+    // 1. Cria uma credencial para reautenticação
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    
+    try {
+        // 2. Reautentica o usuário (garante que a sessão é válida)
+        await reauthenticateWithCredential(user, credential);
+        
+        // 3. Exclui o usuário (só roda se a reautenticação acima for bem-sucedida)
+        await deleteUser(user);
+        
+        return true;
+    } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+            throw new Error("Senha atual incorreta. Não foi possível excluir a conta.");
+        }
+        console.error("Erro ao excluir usuário do Auth:", error);
+        throw new Error("Falha ao excluir conta. Verifique sua senha e tente novamente.");
+    }
+}

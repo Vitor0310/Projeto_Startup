@@ -3,9 +3,10 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "reac
 import { globalStyles } from "../styles/globalStyles";
 import { colors } from "../styles/colors";
 import { getCurrentUserAuth, getUserProfile, updateProfile } from "../services/userService";
+import { deleteUserProfile } from "../services/userService";
+import { deleteCurrentUserWithReauth } from "../services/authService";
 
-export default function ProfileScreen({ navigation }) { // <-- Adicionar navigation aqui
-    // ADICIONADO 'nome' no estado inicial e garantido que a fotoUrl está lá
+export default function ProfileScreen({ navigation }) {
     const [authData, setAuthData] = useState(null); 
     const [profile, setProfile] = useState({ nome: '', telefone: '', fotoUrl: '' });
     const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +23,6 @@ export default function ProfileScreen({ navigation }) { // <-- Adicionar navigat
 
     const fetchProfile = async (userId) => {
         const data = await getUserProfile(userId);
-        // Garante que o estado seja inicializado mesmo que o Firestore retorne null/undefined para um campo
         setProfile({
             nome: data.nome || '', 
             telefone: data.telefone || '', 
@@ -49,6 +49,20 @@ export default function ProfileScreen({ navigation }) { // <-- Adicionar navigat
         }
     };
 
+    // A FUNÇÃO FOI MODIFICADA PARA APENAS NAVEGAR PARA A TELA DE CONFIRMAÇÃO
+    const handleDeleteAccount = () => {
+        if (!authData || !authData.uid) {
+            Alert.alert("Erro", "Sessão inválida. Por favor, faça login novamente.");
+            return;
+        }
+
+        // NAVEGA PARA A TELA DE CONFIRMAÇÃO QUE VAI PEDIR A SENHA
+        navigation.navigate('DeleteConfirmation', { authData: authData });
+    };
+
+    // <--- O CÓDIGO DA LÓGICA DO COMPONENTE ENCERRA AQUI.
+    // O RESTANTE É A ESTRUTURA VISUAL:
+
     if (isLoading) {
         return (
             <View style={globalStyles.container}>
@@ -64,7 +78,7 @@ export default function ProfileScreen({ navigation }) { // <-- Adicionar navigat
             <Text style={styles.infoText}>E-mail: {authData ? authData.email : 'N/A'}</Text>
             <Text style={styles.sectionTitle}>Atualizar Dados</Text>
 
-            {/* CAMPO PARA ATUALIZAR NOME */}
+            {/* Campo para Atualizar NOME */}
             <TextInput
                 style={globalStyles.input}
                 placeholder="Nome Completo (Atualizar)"
@@ -90,12 +104,23 @@ export default function ProfileScreen({ navigation }) { // <-- Adicionar navigat
 
             <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Outras Configurações</Text>
             
-            {/* LINK PARA TROCA DE SENHA - Conecta ao Stack Navigator */}
+            {/* LINK PARA TROCA DE SENHA */}
             <TouchableOpacity 
                 style={{ width: '100%', paddingVertical: 10 }}
                 onPress={() => navigation.navigate('UpdatePassword')}
             >
                 <Text style={globalStyles.link}>Trocar Senha</Text>
+            </TouchableOpacity>
+            
+            {/* BOTÃO DE EXCLUIR CONTA */}
+            <TouchableOpacity 
+                onPress={handleDeleteAccount} // <-- CHAMA A FUNÇÃO DE NAVEGAÇÃO
+                disabled={isLoading}
+                style={{ width: '100%', paddingVertical: 10, marginTop: 40 }}
+            >
+                <Text style={[globalStyles.link, { color: '#DC3545' }]}>
+                    Excluir Minha Conta
+                </Text>
             </TouchableOpacity>
         </View>
     );

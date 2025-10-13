@@ -18,6 +18,8 @@ import MyVagasScreen from "./screens/MyVagasScreen";
 import BookingScreen from "./screens/BookingScreen";
 import MapScreen from "./screens/MapScreen";
 import UpdatePasswordScreen from "./screens/UpdatePasswordScreen";
+import DeleteConfirmationScreen from "./screens/DeleteConfirmationScreen";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +41,7 @@ export default function App() {
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
         <Stack.Screen name="UpdatePassword" component={UpdatePasswordScreen} />
+        <Stack.Screen name="DeleteConfirmation" component={DeleteConfirmationScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
