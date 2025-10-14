@@ -1,6 +1,6 @@
 // services/vagaService.js
 import { db } from "../firebaseConfig";
-import { collection, getDocs, doc, getDoc, addDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
 const vagasCollection = collection(db, "vagas");
 
@@ -45,5 +45,19 @@ export async function createVaga(vagaData) {
   } catch (e) {
     console.error("Erro ao adicionar documento: ", e);
     throw new Error("Falha ao cadastrar vaga.");
+  }
+}
+
+// Nova função para atualizar uma vaga existente
+export async function updateVaga(id, dataToUpdate) {
+  try {
+    const vagaRef = doc(db, "vagas", id);
+    // O updateDoc atualiza apenas os campos que você especificar
+    await updateDoc(vagaRef, dataToUpdate);
+    console.log("Documento de vaga atualizado com sucesso.");
+    return true;
+  } catch (e) {
+    console.error("Erro ao atualizar documento de vaga: ", e);
+    throw new Error("Falha ao atualizar vaga.");
   }
 }

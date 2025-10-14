@@ -1,38 +1,58 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import { useFocusEffect } from "@react-navigation/native"; // <--- IMPORT CRUCIAL
 import { globalStyles } from "../styles/globalStyles";
-import { getAllVagas } from "../services/vagaService"; // Importe o serviço de vagas
+import { getAllVagas } from "../services/vagaService"; 
 
 export default function MyVagasScreen({ navigation }) {
   const [myVagas, setMyVagas] = useState([]);
 
-  useEffect(() => {
-    // Em um app real, você buscaria apenas as vagas do usuário logado.
-    // Por enquanto, vamos simular buscando todas as vagas.
-    const vagasDoLocador = getAllVagas();
-    setMyVagas(vagasDoLocador);
-  }, []);
+  useFocusEffect(
+        useCallback(() => {
+            const fetchVagas = async () => {
+                // Em um app real, você buscaria apenas as vagas do usuário logado.
+                const vagasDoLocador = await getAllVagas(); // <- Agora é assíncrono
+                setMyVagas(vagasDoLocador);
+            };
+            
+            fetchVagas();
+            
+            // O código de cleanup (retorno) é opcional aqui, mas é uma boa prática
+            return () => {}; 
+        }, [])
+    );
 
   const handleDeleteVaga = (vagaId) => {
-    Alert.alert(
-      "Confirmar Exclusão",
-      "Tem certeza que deseja excluir esta vaga?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Excluir",
-          onPress: () => {
-            // Lógica de exclusão simulada. Em um app real, você chamaria o Firebase.
-            setMyVagas(myVagas.filter(vaga => vaga.id !== vagaId));
-            Alert.alert("Sucesso", "Vaga excluída com sucesso.");
-          },
-        },
-      ]
-    );
-  };
+    Alert.alert(
+        "Confirmar Exclusão",
+        "Tem certeza que deseja excluir esta vaga?",
+        [
+            // ...
+            {
+                text: "Excluir",
+                style: "destructive",
+                onPress: async () => { // <-- A função deve ser 'async'
+                    try {
+                        // 1. Excluir no Firebase (chamada assíncrona)
+                        // await deleteVaga(vagaId); // <--- Você precisará criar esta função
+                        
+                        // Por enquanto, apenas o filtro do mock para que o app não quebre
+                        setMyVagas(myVagas.filter(vaga => vaga.id !== vagaId));
+                        
+                        Alert.alert("Sucesso", "Vaga excluída com sucesso.");
+                        
+                        // 2. FORÇA O RECARREGAMENTO DE DADOS AQUI (opcional se usar useFocusEffect)
+                        // A lista será recarregada automaticamente pelo useFocusEffect quando a tela voltar ao foco, mas...
+                        // se a lógica de exclusão for feita aqui, o useFocusEffect já fará o trabalho!
+
+                    } catch(error) {
+                        Alert.alert("Erro", "Falha ao excluir vaga: " + error.message);
+                    }
+                },
+            },
+        ]
+    );
+};
 
   const renderItem = ({ item }) => (
     <View style={styles.vagaCard}>
@@ -41,8 +61,7 @@ export default function MyVagasScreen({ navigation }) {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={[globalStyles.button, styles.actionButton]}
-          onPress={() => Alert.alert("Editar", "Funcionalidade de edição em desenvolvimento.")}
-        >
+          onPress={() => navigation.navigate("EditVaga", { vagaId:item.id })}>
           <Text style={globalStyles.buttonText}>Editar</Text>
         </TouchableOpacity>
         <TouchableOpacity 
