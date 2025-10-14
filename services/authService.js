@@ -1,7 +1,7 @@
 // services/authService.js (AGORA COM FIREBASE AUTH REAL)
 import { auth } from "../firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "firebase/auth";
 
 // A função de registro agora usa o Firebase Auth
 export async function registerUser(email, password) {
