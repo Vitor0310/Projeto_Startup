@@ -21,6 +21,15 @@ export default function HomeScreen({ navigation }) {
                 <Text style={globalStyles.buttonText}>Minha Conta (Perfil)</Text>
             </TouchableOpacity>
 
+      {/* Botão para o Locatário: Histórico de Reservas */}
+      <TouchableOpacity
+      style={[globalStyles.button, { backgroundColor: '#3498db' }]} // Cor diferente para destaque
+      onPress={() => navigation.navigate("Historico")} // Navega para a rota "Historico"
+       >
+        <Text style={globalStyles.buttonText}>Histórico de Reservas</Text>
+      </TouchableOpacity>
+
+
       {/* Botão para o Locatário */}
       <TouchableOpacity
         style={globalStyles.button}
