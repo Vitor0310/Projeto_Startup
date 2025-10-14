@@ -61,3 +61,16 @@ export async function updateVaga(id, dataToUpdate) {
     throw new Error("Falha ao atualizar vaga.");
   }
 }
+
+// função para excluir vaga
+export async function deleteVaga(id) {
+  try {
+    const vagaRef = doc(db, "vagas", id);
+    await deleteDoc(vagaRef);
+    console.log("Vaga excluida com sucesso do firestore.");
+    return true;
+  } catch(e) {
+    console.error("Erro ao excluir vaga:", e);
+    throw new Error("falha ao excluir vaga.");
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native"; // <--- IMPORT CRUCIAL
 import { globalStyles } from "../styles/globalStyles";
-import { getAllVagas } from "../services/vagaService"; 
+import { getAllVagas, deleteVaga } from "../services/vagaService"; 
 
 export default function MyVagasScreen({ navigation }) {
   const [myVagas, setMyVagas] = useState([]);
@@ -23,36 +23,37 @@ export default function MyVagasScreen({ navigation }) {
     );
 
   const handleDeleteVaga = (vagaId) => {
-    Alert.alert(
-        "Confirmar Exclusão",
-        "Tem certeza que deseja excluir esta vaga?",
-        [
-            // ...
-            {
-                text: "Excluir",
-                style: "destructive",
-                onPress: async () => { // <-- A função deve ser 'async'
-                    try {
-                        // 1. Excluir no Firebase (chamada assíncrona)
-                        // await deleteVaga(vagaId); // <--- Você precisará criar esta função
-                        
-                        // Por enquanto, apenas o filtro do mock para que o app não quebre
-                        setMyVagas(myVagas.filter(vaga => vaga.id !== vagaId));
-                        
-                        Alert.alert("Sucesso", "Vaga excluída com sucesso.");
-                        
-                        // 2. FORÇA O RECARREGAMENTO DE DADOS AQUI (opcional se usar useFocusEffect)
-                        // A lista será recarregada automaticamente pelo useFocusEffect quando a tela voltar ao foco, mas...
-                        // se a lógica de exclusão for feita aqui, o useFocusEffect já fará o trabalho!
-
-                    } catch(error) {
-                        Alert.alert("Erro", "Falha ao excluir vaga: " + error.message);
-                    }
+        Alert.alert(
+            "Confirmar Exclusão",
+            "Tem certeza que deseja excluir esta vaga permanentemente?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel",
                 },
-            },
-        ]
-    );
-};
+                {
+                    text: "Excluir",
+                    style: "destructive",
+                    onPress: async () => { // <-- A função deve ser 'async'
+                        try {
+                            // CHAMA A FUNÇÃO REAL DE EXCLUSÃO DO FIREBASE
+                            await deleteVaga(vagaId); 
+                            
+                            // 1. Atualiza a lista no estado (melhora a UX antes do useFocusEffect recarregar)
+                            setMyVagas(myVagas.filter(vaga => vaga.id !== vagaId));
+                            
+                            Alert.alert("Sucesso", "Vaga excluída com sucesso.");
+                            
+                            // O useFocusEffect cuidará do recarregamento total se o usuário sair e voltar
+                            
+                        } catch(error) {
+                            Alert.alert("Erro", "Falha ao excluir vaga: " + error.message);
+                        }
+                    },
+                },
+            ]
+        );
+    };
 
   const renderItem = ({ item }) => (
     <View style={styles.vagaCard}>
