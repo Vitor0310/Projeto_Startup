@@ -1,25 +1,31 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+// firebaseConfig.js
+import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from 'firebase/auth';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Importações de Autenticação
+import { 
+    getAuth, 
+    initializeAuth, // <- Usado para configurar a persistência
+    getReactNativePersistence 
+} from 'firebase/auth'; 
+import AsyncStorage from '@react-native-async-storage/async-storage'; // <- Importando o AsyncStorage
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Suas credenciais do Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCUZBJ9ZyHPPx83A5s1vvgeIbc7xvip6ak",
-  authDomain: "vagaja-327e8.firebaseapp.com",
-  projectId: "vagaja-327e8",
-  storageBucket: "vagaja-327e8.firebasestorage.app",
-  messagingSenderId: "160110923598",
-  appId: "1:160110923598:web:c82e2c8cccc3b6ea7b181f",
-  measurementId: "G-5VBZG6TLYK"
+  // ATENÇÃO: COLOQUE SUAS CHAVES AQUI
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_AUTH_DOMAIN",
+  projectId: "SEU_PROJECT_ID",
+  // ... (o restante das suas chaves)
 };
 
-// Initialize Firebase
+// Inicialize o Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Inicialize a autenticação com Persistência (essa linha resolve o WARN)
+const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage) // Usa o AsyncStorage para persistir o login
+});
+
+// Inicialize os serviços do Firebase que você vai usar
 export const db = getFirestore(app);
-export const auth = getAuth(app);
+export { auth }; // Exporta o auth configurado para as outras telas

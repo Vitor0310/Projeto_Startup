@@ -1,23 +1,42 @@
 // services/reservaService.js
 import { db } from "../firebaseConfig";
-import { collection, query, where, getDocs } from "firebase/firestore";
-// Você pode adicionar addDoc, updateDoc para criar e finalizar reservas futuramente
+import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
 const reservasCollection = collection(db, "reservas");
 
-// Funções mock de teste (você precisará criar a coleção 'reservas' no Firebase)
-const mockReservas = [
-  { id: 'res1', vagaNome: 'Vaga Perto do Shopping', data: '2025-11-01', status: 'Concluída' },
-  { id: 'res2', vagaNome: 'Garagem no Centro', data: '2025-11-05', status: 'Cancelada' },
-];
+// Funções mock de teste (REMOVIDAS)
 
-// Função para buscar o histórico de reservas de um usuário (mock por enquanto)
+// FUNÇÃO ATUALIZADA: Agora busca o histórico de reservas de um usuário NO FIRESTORE
 export async function getReservasByUser(userId) {
-  // Em um app real, você faria uma consulta filtrada:
-  // const q = query(reservasCollection, where("userId", "==", userId));
-  // const querySnapshot = await getDocs(q);
-  // return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    // 1. Cria a consulta (query) para buscar documentos onde 'userId' é igual ao ID do usuário logado
+    const q = query(reservasCollection, where("userId", "==", userId));
+    
+    // 2. Executa a consulta
+    const querySnapshot = await getDocs(q);
+    
+    // 3. Mapeia os documentos para um formato de lista JS
+    const reservas = querySnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+    }));
+    
+    return reservas;
+  } catch (error) {
+    console.error("Erro ao buscar reservas: ", error);
+    return [];
+  }
+}
 
-  // Por enquanto, retorna o mock para não exigir login real
-  return mockReservas; 
+// Função para criar uma reserva no Firestore (já implementada e correta)
+export async function createReserva(reservaData) {
+  try {
+    // O addDoc envia o objeto da reserva para a coleção 'reservas'
+    const docRef = await addDoc(reservasCollection, reservaData);
+    console.log("Reserva registrada com ID: ", docRef.id);
+    return docRef.id;
+  } catch (e) {
+    console.error("Erro ao criar reserva: ", e);
+    throw new Error("Falha ao registrar reserva.");
+  }
 }

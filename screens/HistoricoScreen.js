@@ -11,16 +11,28 @@ export default function HistoricoScreen() {
 
     useEffect(() => {
         const fetchHistorico = async () => {
-            // Usa um ID mock temporário se o usuário não estiver logado de forma real
             const user = getCurrentUserAuth(); 
-            const userId = user ? user.uid : "mock_user_id"; 
             
-            const historico = await getReservasByUser(userId);
-            setReservas(historico);
-            setIsLoading(false);
+            // Verifica se o usuário está logado
+            if (!user) {
+                Alert.alert("Atenção", "Faça login para ver seu histórico.");
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                // Chama a função REAL do Firebase, usando o UID do usuário
+                const historico = await getReservasByUser(user.uid); 
+                setReservas(historico);
+            } catch (error) {
+                Alert.alert("Erro", "Falha ao carregar histórico.");
+                console.error("Erro ao carregar histórico:", error);
+            } finally {
+                setIsLoading(false);
+            }
         };
         fetchHistorico();
-    }, []);
+    }, []); // Roda apenas na montagem da tela
 
     const renderItem = ({ item }) => (
         <View style={styles.reservaCard}>
