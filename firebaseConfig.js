@@ -12,9 +12,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'; // <- Impo
 // Suas credenciais do Firebase
 const firebaseConfig = {
   // ATENÇÃO: COLOQUE SUAS CHAVES AQUI
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_AUTH_DOMAIN",
-  projectId: "SEU_PROJECT_ID",
+  apiKey: "AIzaSyCUZBJ9ZyHPPx83A5s1vvgeIbc7xvip6ak",
+  authDomain: "vagaja-327e8.firebaseapp.com",
+  projectId:"vagaja-327e8",
   // ... (o restante das suas chaves)
 };
 

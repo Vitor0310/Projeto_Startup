@@ -111,6 +111,14 @@ export default function ProfileScreen({ navigation }) {
             >
                 <Text style={globalStyles.link}>Trocar Senha</Text>
             </TouchableOpacity>
+
+            {/* NOVO LINK PARA AJUDA E SUPORTE */}
+            <TouchableOpacity 
+                style={{ width: '100%', paddingVertical: 10 }}
+                onPress={() => navigation.navigate('Support')}
+            >
+                <Text style={globalStyles.link}>Ajuda e Suporte</Text>
+            </TouchableOpacity>
             
             {/* BOTÃO DE EXCLUIR CONTA */}
             <TouchableOpacity 

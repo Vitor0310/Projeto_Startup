@@ -20,6 +20,8 @@ import MapScreen from "./screens/MapScreen";
 import UpdatePasswordScreen from "./screens/UpdatePasswordScreen";
 import DeleteConfirmationScreen from "./screens/DeleteConfirmationScreen";
 import EditVagaScreen from "./screens/EditVagaScreen";
+import SupportScreen from "./screens/SupportScreen";
+import DashboardScreen from "./screens/DashboardScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -44,6 +46,8 @@ export default function App() {
         <Stack.Screen name="UpdatePassword" component={UpdatePasswordScreen} />
         <Stack.Screen name="DeleteConfirmation" component={DeleteConfirmationScreen} /> 
         <Stack.Screen name="EditVaga" component={EditVagaScreen} />
+        <Stack.Screen name="Support" component={SupportScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
