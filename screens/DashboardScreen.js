@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native'; // Adicionado Dimensions
 import { globalStyles } from '../styles/globalStyles';
 import { colors } from '../styles/colors';
 
-// Importa serviços necessários para contagem
-import { getAllVagas } from '../services/vagaService';
-import { getReservasByUser } from '../services/reservaService'; // Usaremos essa função para contagem (deve ser ajustada)
+// Importa a biblioteca de gráficos
+import { PieChart } from 'react-native-chart-kit'; 
 
-// Funções para contar dados do Firestore (Simulando a busca de todos os dados)
-// NOTA: Em produção, o ideal é usar funções do Firebase para contar diretamente, 
-// mas para o nosso protótipo, buscar e contar no app é mais fácil.
+// Importa serviços
+import { getAllVagas } from '../services/vagaService';
+import { getAllReservas } from '../services/reservaService';
+
+// Obter a largura da tela para adaptar o gráfico
+const screenWidth = Dimensions.get('window').width;
 
 export default function DashboardScreen({ navigation }) {
     const [totalVagas, setTotalVagas] = useState(0);
     const [totalReservas, setTotalReservas] = useState(0);
+    const [reservasPendentes, setReservasPendentes] = useState(0); 
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -24,19 +27,19 @@ export default function DashboardScreen({ navigation }) {
                 const vagas = await getAllVagas();
                 setTotalVagas(vagas.length);
 
-                // 2. Contagem de Reservas (Usando um ID mock, pois o dashboard deve contar TUDO)
-                // Para uma contagem real de TODAS as reservas, a função getReservasByUser precisaria ser ajustada para ignorar o userId.
-                // Por enquanto, vamos simular:
-                const reservas = await getReservasByUser("qualquer_id_de_usuario"); 
-                // Assumimos que a função getReservasByUser pode ser adaptada para buscar um subconjunto
-                // Para simplificar, vamos usar um valor mock para total de reservas por enquanto
-                setTotalReservas(reservas.length * 2); // Multiplica para simular mais dados
+                // 2. Contagem REAL de Reservas
+                const todasReservas = await getAllReservas(); 
+                setTotalReservas(todasReservas.length);
                 
+                // 3. Reservas Pendentes
+                const pendentes = todasReservas.filter(r => r.status === 'Pendente');
+                setReservasPendentes(pendentes.length); 
+
             } catch (error) {
                 console.error("Erro ao carregar dados do Dashboard:", error);
-                // Define valores 0 em caso de erro
                 setTotalVagas(0);
                 setTotalReservas(0);
+                setReservasPendentes(0);
             } finally {
                 setIsLoading(false);
             }
@@ -45,6 +48,30 @@ export default function DashboardScreen({ navigation }) {
         fetchDashboardData();
     }, []);
 
+    // Função para gerar o Data Set do gráfico
+    const getChartData = () => {
+        // Garantir que os dados sejam números
+        const vagas = Number(totalVagas);
+        const reservas = Number(totalReservas);
+
+        return [
+            {
+                name: "Vagas Ativas",
+                population: vagas,
+                color: "#4CAF50", // Verde
+                legendFontColor: colors.text,
+                legendFontSize: 14
+            },
+            {
+                name: "Total de Reservas",
+                population: reservas,
+                color: "#3498db", // Azul
+                legendFontColor: colors.text,
+                legendFontSize: 14
+            },
+        ];
+    };
+    
     const InfoCard = ({ title, value, color }) => (
         <View style={[styles.card, { backgroundColor: color }]}>
             <Text style={styles.cardValue}>{value}</Text>
@@ -80,17 +107,33 @@ export default function DashboardScreen({ navigation }) {
                     />
                     <InfoCard 
                         title="Reservas Pendentes" 
-                        value={Math.floor(totalReservas / 4)} 
+                        value={reservasPendentes} 
                         color="#FFD700" // Amarelo
                     />
                 </View>
 
-                {/* Área Futura para Gráficos */}
-                <Text style={[styles.sectionTitle, { marginTop: 40 }]}>Visão Geral (Gráficos Futuros)</Text>
-                <View style={styles.chartPlaceholder}>
-                    <Text style={styles.placeholderText}>
-                        *Aqui será implementado o Gráfico de Ocupação e Receita*
-                    </Text>
+                {/* ÁREA DO GRÁFICO (Substitui o Placeholder) */}
+                <Text style={[styles.sectionTitle, { marginTop: 40 }]}>Proporção Geral</Text>
+                
+                <View style={styles.chartContainer}>
+                    <PieChart
+                        data={getChartData()}
+                        width={screenWidth * 0.9} // 90% da largura da tela
+                        height={220}
+                        chartConfig={{
+                            backgroundColor: colors.background,
+                            backgroundGradientFrom: colors.background,
+                            backgroundGradientTo: colors.background,
+                            decimalPlaces: 0,
+                            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                            labelColor: (opacity = 1) => colors.text,
+                        }}
+                        accessor={"population"}
+                        backgroundColor={colors.inputBackground}
+                        paddingLeft={"15"}
+                        center={[10, 50]} // Ajusta a posição do gráfico
+                        absolute // Para mostrar o valor absoluto no tooltip
+                    />
                 </View>
                 
             </View>
@@ -142,18 +185,12 @@ const styles = StyleSheet.create({
         marginTop: 5,
         textAlign: 'center',
     },
-    chartPlaceholder: {
+    // NOVO ESTILO PARA O CONTAINER DO GRÁFICO
+    chartContainer: {
         width: '100%',
-        height: 200,
-        backgroundColor: colors.inputBackground,
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: colors.border,
-    },
-    placeholderText: {
-        color: colors.textSecondary,
-        fontStyle: 'italic',
+        marginBottom: 20,
     }
 });

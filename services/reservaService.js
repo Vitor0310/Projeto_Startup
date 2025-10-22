@@ -4,7 +4,25 @@ import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
 const reservasCollection = collection(db, "reservas");
 
-// Funções mock de teste (REMOVIDAS)
+
+// Nova função para buscar TODAS as reservas (para o Dashboard)
+export async function getAllReservas() {
+    try {
+        const reservasCollection = collection(db, "reservas");
+        const querySnapshot = await getDocs(reservasCollection);
+        
+        // Mapeia os documentos para um formato de lista JS
+        const reservas = querySnapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data() 
+        }));
+        
+        return reservas;
+    } catch (error) {
+        console.error("Erro ao buscar TODAS as reservas: ", error);
+        return [];
+    }
+}
 
 // FUNÇÃO ATUALIZADA: Agora busca o histórico de reservas de um usuário NO FIRESTORE
 export async function getReservasByUser(userId) {
