@@ -7,7 +7,7 @@ import { deleteUserProfile } from "../services/userService";
 import { deleteCurrentUserWithReauth } from "../services/authService";
 
 export default function ProfileScreen({ navigation }) {
-    const [authData, setAuthData] = useState(null); 
+    const [authData, setAuthData] = useState(null);
     const [profile, setProfile] = useState({ nome: '', telefone: '', fotoUrl: '' });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -24,8 +24,8 @@ export default function ProfileScreen({ navigation }) {
     const fetchProfile = async (userId) => {
         const data = await getUserProfile(userId);
         setProfile({
-            nome: data.nome || '', 
-            telefone: data.telefone || '', 
+            nome: data.nome || '',
+            telefone: data.telefone || '',
             fotoUrl: data.fotoUrl || ''
         });
         setIsLoading(false);
@@ -70,7 +70,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
         );
     }
-    
+
     return (
         <View style={globalStyles.container}>
             <Text style={globalStyles.title}>👤 Minha Conta</Text>
@@ -86,7 +86,7 @@ export default function ProfileScreen({ navigation }) {
                 value={profile.nome}
                 onChangeText={(text) => setProfile({ ...profile, nome: text })}
             />
-            
+
             {/* Campo para Atualizar Telefone */}
             <TextInput
                 style={globalStyles.input}
@@ -96,16 +96,16 @@ export default function ProfileScreen({ navigation }) {
                 onChangeText={(text) => setProfile({ ...profile, telefone: text })}
                 keyboardType="phone-pad"
             />
-            
+
             {/* Botão de Atualização */}
             <TouchableOpacity style={globalStyles.button} onPress={handleUpdate} disabled={isLoading}>
                 <Text style={globalStyles.buttonText}>Salvar Alterações</Text>
             </TouchableOpacity>
 
             <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Outras Configurações</Text>
-            
+
             {/* LINK PARA TROCA DE SENHA */}
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={{ width: '100%', paddingVertical: 10 }}
                 onPress={() => navigation.navigate('UpdatePassword')}
             >
@@ -113,15 +113,15 @@ export default function ProfileScreen({ navigation }) {
             </TouchableOpacity>
 
             {/* NOVO LINK PARA AJUDA E SUPORTE */}
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={{ width: '100%', paddingVertical: 10 }}
                 onPress={() => navigation.navigate('Support')}
             >
                 <Text style={globalStyles.link}>Ajuda e Suporte</Text>
             </TouchableOpacity>
-            
+
             {/* BOTÃO DE EXCLUIR CONTA */}
-            <TouchableOpacity 
+            <TouchableOpacity
                 onPress={handleDeleteAccount} // <-- CHAMA A FUNÇÃO DE NAVEGAÇÃO
                 disabled={isLoading}
                 style={{ width: '100%', paddingVertical: 10, marginTop: 40 }}

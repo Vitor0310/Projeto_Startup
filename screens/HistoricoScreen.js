@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { getReservasByUser } from "../services/reservaService";
-import { getCurrentUserAuth } from "../services/userService"; 
+import { getCurrentUserAuth } from "../services/userService";
 import { colors } from "../styles/colors";
 
 export default function HistoricoScreen() {
@@ -11,8 +11,8 @@ export default function HistoricoScreen() {
 
     useEffect(() => {
         const fetchHistorico = async () => {
-            const user = getCurrentUserAuth(); 
-            
+            const user = getCurrentUserAuth();
+
             // Verifica se o usuário está logado
             if (!user) {
                 Alert.alert("Atenção", "Faça login para ver seu histórico.");
@@ -22,7 +22,7 @@ export default function HistoricoScreen() {
 
             try {
                 // Chama a função REAL do Firebase, usando o UID do usuário
-                const historico = await getReservasByUser(user.uid); 
+                const historico = await getReservasByUser(user.uid);
                 setReservas(historico);
             } catch (error) {
                 Alert.alert("Erro", "Falha ao carregar histórico.");
@@ -51,11 +51,11 @@ export default function HistoricoScreen() {
             </View>
         );
     }
-    
+
     return (
         <View style={globalStyles.container}>
             <Text style={globalStyles.title}>📖 Histórico de Reservas</Text>
-            
+
             <FlatList
                 data={reservas}
                 renderItem={renderItem}
