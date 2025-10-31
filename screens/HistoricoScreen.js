@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { getReservasByUser } from "../services/reservaService";
 import { getCurrentUserAuth } from "../services/userService";
 import { colors } from "../styles/colors";
+import { Ionicons } from '@expo/vector-icons'; // <-- IMPORT DOS ÍCONES
 
 export default function HistoricoScreen() {
     const [reservas, setReservas] = useState([]);
@@ -12,8 +13,6 @@ export default function HistoricoScreen() {
     useEffect(() => {
         const fetchHistorico = async () => {
             const user = getCurrentUserAuth();
-
-            // Verifica se o usuário está logado
             if (!user) {
                 Alert.alert("Atenção", "Faça login para ver seu histórico.");
                 setIsLoading(false);
@@ -21,28 +20,55 @@ export default function HistoricoScreen() {
             }
 
             try {
-                // Chama a função REAL do Firebase, usando o UID do usuário
                 const historico = await getReservasByUser(user.uid);
                 setReservas(historico);
             } catch (error) {
                 Alert.alert("Erro", "Falha ao carregar histórico.");
-                console.error("Erro ao carregar histórico:", error);
             } finally {
                 setIsLoading(false);
             }
         };
         fetchHistorico();
-    }, []); // Roda apenas na montagem da tela
+    }, []);
 
-    const renderItem = ({ item }) => (
-        <View style={styles.reservaCard}>
-            <Text style={styles.vagaNome}>{item.vagaNome}</Text>
-            <Text style={styles.dataInfo}>Data: {item.data}</Text>
-            <Text style={[styles.statusText, item.status === 'Concluída' ? styles.statusSuccess : styles.statusDanger]}>
-                Status: {item.status}
-            </Text>
-        </View>
-    );
+    const renderItem = ({ item }) => {
+        const formatarData = (dataObj) => {
+            if (!dataObj) return 'Data não definida';
+            if (dataObj.toDate) {
+                return dataObj.toDate().toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+            return new Date(dataObj).toLocaleDateString('pt-BR');
+        };
+
+        const getStatusStyle = (status) => {
+            if (status === 'Concluída') return styles.statusConcluida;
+            if (status === 'Cancelada') return styles.statusCancelada;
+            return styles.statusPendente;
+        };
+
+        return (
+            <View style={styles.reservaCard}>
+                <Text style={styles.vagaNome}>{item.vagaNome}</Text>
+                
+                <View style={styles.infoRow}>
+                    <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.dataInfo}>
+                        {formatarData(item.dataReserva)}
+                    </Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                    <Ionicons name="ellipse" size={12} style={getStatusStyle(item.status)} />
+                    <Text style={[styles.statusText, getStatusStyle(item.status)]}>
+                        {item.status || 'Pendente'}
+                    </Text>
+                </View>
+            </View>
+        );
+    };
 
     if (isLoading) {
         return (
@@ -51,11 +77,11 @@ export default function HistoricoScreen() {
             </View>
         );
     }
-
+    
     return (
         <View style={globalStyles.container}>
             <Text style={globalStyles.title}>📖 Histórico de Reservas</Text>
-
+            
             <FlatList
                 data={reservas}
                 renderItem={renderItem}
@@ -76,33 +102,40 @@ const styles = StyleSheet.create({
     },
     reservaCard: {
         backgroundColor: colors.inputBackground,
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 10,
+        padding: 16,
+        borderRadius: 10,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: colors.border,
     },
     vagaNome: {
         fontSize: 18,
         fontWeight: 'bold',
         color: colors.primary,
+        marginBottom: 10,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginBottom: 5,
     },
     dataInfo: {
         color: colors.textSecondary,
-        marginBottom: 5,
+        fontSize: 14,
+        marginLeft: 8,
     },
     statusText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: 'bold',
+        marginLeft: 8,
     },
-    statusSuccess: {
-        color: '#4CAF50', // Verde
-    },
-    statusDanger: {
-        color: '#DC3545', // Vermelho
-    },
+    statusPendente: { color: '#FFD700' },
+    statusConcluida: { color: '#4CAF50' },
+    statusCancelada: { color: '#DC3545' },
     emptyText: {
         color: colors.textSecondary,
         textAlign: 'center',
         marginTop: 20,
+        fontSize: 16,
     }
 });

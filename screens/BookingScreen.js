@@ -30,9 +30,9 @@ export default function BookingScreen({ navigation, route }) {
         setShowPicker(false); // Sempre fecha o picker após a tentativa de seleção
 
         if (event.type === "dismissed") {
-            return; 
+            return;
         }
-        
+
         if (selectedValue) {
             // Se estiver no modo 'date', preservamos a hora atual
             if (mode === 'date') {
@@ -40,8 +40,8 @@ export default function BookingScreen({ navigation, route }) {
                 newDate.setHours(date.getHours());
                 newDate.setMinutes(date.getMinutes());
                 setDate(newDate);
-                
-            } 
+
+            }
             // Se estiver no modo 'time', preservamos a data atual
             else if (mode === 'time') {
                 const newTime = new Date(selectedValue);
@@ -66,7 +66,7 @@ export default function BookingScreen({ navigation, route }) {
             vagaId: vagaId,
             vagaNome: vagaNome,
             dataReserva: date, // Envia o objeto Date nativo
-            status: 'Pendente', 
+            status: 'Pendente',
             dataCriacao: new Date(),
             valorTotal: 25.00, // Valor mock
             duracaoHoras: 2,    // Duração mock
@@ -74,9 +74,9 @@ export default function BookingScreen({ navigation, route }) {
 
         try {
             await createReserva(reservaData);
-            
+
             Alert.alert(
-                "Sucesso", 
+                "Sucesso",
                 `Reserva para ${vagaNome} agendada!`,
                 [
                     {
@@ -85,11 +85,11 @@ export default function BookingScreen({ navigation, route }) {
                     },
                 ]
             );
-            
+
             // FORÇA A NAVEGAÇÃO APÓS O ALERTA TER TEMPO DE SE FECHAR
             setTimeout(() => {
-                 navigation.navigate('Historico');
-            }, 500); 
+                navigation.navigate('Historico');
+            }, 500);
 
         } catch (error) {
             Alert.alert("Erro", "Falha ao processar reserva: " + error.message);
@@ -121,7 +121,7 @@ export default function BookingScreen({ navigation, route }) {
                     <Text style={styles.dateButtonText}>Hora: {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Text>
                 </TouchableOpacity>
             </View>
-            
+
             {showPicker && (
                 <DateTimePicker
                     value={date}
@@ -132,7 +132,7 @@ export default function BookingScreen({ navigation, route }) {
                 />
             )}
 
-            <TouchableOpacity 
+            <TouchableOpacity
                 style={[globalStyles.button, { backgroundColor: colors.primary, marginTop: 20 }]}
                 onPress={handleConfirmBooking}
             >

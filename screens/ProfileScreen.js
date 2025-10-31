@@ -115,7 +115,7 @@ export default function ProfileScreen({ navigation }) {
             {/* NOVO LINK PARA AJUDA E SUPORTE */}
             <TouchableOpacity
                 style={{ width: '100%', paddingVertical: 10 }}
-                onPress={() => navigation.navigate('Support')}
+                onPress={() => navigation.navigate('SupportDrawer')}
             >
                 <Text style={globalStyles.link}>Ajuda e Suporte</Text>
             </TouchableOpacity>

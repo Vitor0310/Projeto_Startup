@@ -1,8 +1,9 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, Image } from "react-native";
 import { useFocusEffect } from "@react-navigation/native"; // <--- IMPORT CRUCIAL
 import { globalStyles } from "../styles/globalStyles";
 import { getAllVagas, deleteVaga } from "../services/vagaService";
+import { colors } from "../styles/colors";
 
 export default function MyVagasScreen({ navigation }) {
     const [myVagas, setMyVagas] = useState([]);
@@ -56,21 +57,34 @@ export default function MyVagasScreen({ navigation }) {
     };
 
     const renderItem = ({ item }) => (
-        <View style={styles.vagaCard}>
-            <Text style={styles.vagaNome}>{item.nome}</Text>
-            <Text style={styles.vagaEndereco}>{item.endereco}</Text>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    style={[globalStyles.button, styles.actionButton]}
-                    onPress={() => navigation.navigate("EditVaga", { vagaId: item.id })}>
-                    <Text style={globalStyles.buttonText}>Editar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[globalStyles.button, styles.actionButton, styles.deleteButton]}
-                    onPress={() => handleDeleteVaga(item.id)}
-                >
-                    <Text style={globalStyles.buttonText}>Excluir</Text>
-                </TouchableOpacity>
+        <View style={styles.vagaCard}> {/* Usaremos o novo estilo */}
+            {/* Adiciona a Imagem Placeholder */}
+            <Image
+                source={{ uri: 'https://via.placeholder.com/100x80.png?text=Vaga' }} // Placeholder
+                style={styles.vagaImage}
+            />
+            {/* Container para informações e botões */}
+            <View style={styles.vagaDetailsContainer}>
+                {/* Informações da Vaga */}
+                <View style={styles.vagaInfo}>
+                    <Text style={styles.vagaNome}>{item.nome}</Text>
+                    <Text style={styles.vagaEndereco}>{item.endereco}</Text>
+                </View>
+                {/* Botões de Ação */}
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        style={[styles.actionButton, styles.editButton]}
+                        onPress={() => navigation.navigate("EditVaga", { vagaId: item.id })}
+                    >
+                        <Text style={styles.actionButtonText}>Editar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.actionButton, styles.deleteButton]}
+                        onPress={() => handleDeleteVaga(item.id)}
+                    >
+                        <Text style={styles.actionButtonText}>Excluir</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -92,44 +106,81 @@ export default function MyVagasScreen({ navigation }) {
     );
 }
 
+// screens/MyVagasScreen.js (NOVO BLOCO DE ESTILOS)
+
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 50,
+        // paddingTop: 50, // Removido ou ajustado
     },
     list: {
         width: "100%",
+        paddingTop: 10,
     },
+    // ESTILOS DO CARTÃO ATUALIZADOS
     vagaCard: {
-        backgroundColor: "#1C1C1C",
-        padding: 20,
+        flexDirection: 'row', // Imagem e conteúdo lado a lado
+        backgroundColor: colors.inputBackground,
         borderRadius: 10,
         marginBottom: 15,
         borderWidth: 1,
-        borderColor: "#333333",
+        borderColor: colors.border,
+        overflow: 'hidden',
+        // Sombra (opcional)
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    vagaImage: {
+        width: 80, // Imagem um pouco menor
+        height: 80, // Altura igual à largura
+        resizeMode: 'cover',
+    },
+    vagaDetailsContainer: {
+        flex: 1, // Ocupa o espaço restante
+        padding: 10,
+        justifyContent: 'space-between', // Espaça infos e botões
+    },
+    vagaInfo: {
+        marginBottom: 5, // Espaço entre texto e botões
     },
     vagaNome: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: "bold",
-        color: "#FFD700",
+        color: colors.primary,
+        marginBottom: 3,
     },
     vagaEndereco: {
-        color: "#AAAAAA",
-        marginTop: 5,
-        marginBottom: 10,
+        fontSize: 13,
+        color: colors.textSecondary,
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        // justifyContent: 'space-between', // Não precisa mais, botões têm tamanho fixo
+        // alignItems: 'center', // Desnecessário com padding/margin
     },
     actionButton: {
-        width: '48%',
-        backgroundColor: '#007BFF',
+        paddingVertical: 6, // Botões menores
+        paddingHorizontal: 12,
+        borderRadius: 5,
+        marginRight: 8, // Espaço entre botões
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    editButton: {
+        backgroundColor: '#007BFF', // Azul para Editar
     },
     deleteButton: {
-        backgroundColor: '#DC3545',
+        backgroundColor: '#DC3545', // Vermelho para Excluir
+    },
+    actionButtonText: {
+        color: '#fff',
+        fontSize: 12, // Texto menor nos botões
+        fontWeight: 'bold',
     },
     noVagasText: {
-        color: "#AAAAAA",
+        color: colors.textSecondary,
         fontSize: 16,
         textAlign: 'center',
         marginTop: 20,

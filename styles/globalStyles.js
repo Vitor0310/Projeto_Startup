@@ -12,7 +12,7 @@ export const globalStyles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "bold", // <-- Voltamos a usar fontWeight
     color: colors.primary,
     marginBottom: 20,
   },
@@ -39,7 +39,7 @@ export const globalStyles = StyleSheet.create({
   buttonText: {
     color: "#000",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "bold", // <-- Voltamos a usar fontWeight
   },
   link: {
     color: colors.link,
