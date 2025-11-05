@@ -61,39 +61,20 @@ export default function BookingScreen({ navigation, route }) {
             return;
         }
 
+        // 1. Prepara os dados da reserva
         const reservaData = {
             userId: user.uid,
             vagaId: vagaId,
             vagaNome: vagaNome,
-            dataReserva: date, // Envia o objeto Date nativo
-            status: 'Pendente',
+            dataReserva: date, 
+            status: 'Pendente', // O status será 'Confirmada' após o pagamento
             dataCriacao: new Date(),
-            valorTotal: 25.00, // Valor mock
+            valorTotal: 25.00, // Valor mock (você pode calcular isso)
             duracaoHoras: 2,    // Duração mock
         };
 
-        try {
-            await createReserva(reservaData);
-
-            Alert.alert(
-                "Sucesso",
-                `Reserva para ${vagaNome} agendada!`,
-                [
-                    {
-                        text: "OK",
-                        // Não faz nada aqui. A navegação será feita pelo setTimeout
-                    },
-                ]
-            );
-
-            // FORÇA A NAVEGAÇÃO APÓS O ALERTA TER TEMPO DE SE FECHAR
-            setTimeout(() => {
-                navigation.navigate('Historico');
-            }, 500);
-
-        } catch (error) {
-            Alert.alert("Erro", "Falha ao processar reserva: " + error.message);
-        }
+        // 2. Navega para a tela de Pagamento, levando os dados
+        navigation.navigate("Payment", { reservaData: reservaData });
     };
 
     return (

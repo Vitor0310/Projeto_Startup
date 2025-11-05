@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native'; // Adicionado Dimensions
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native'; // Import Dimensions e ActivityIndicator
+import { useFocusEffect } from '@react-navigation/native'; // Para recarregar os dados
 import { globalStyles } from '../styles/globalStyles';
 import { colors } from '../styles/colors';
 
 // Importa a biblioteca de gráficos
-import { PieChart } from 'react-native-chart-kit'; 
+import { PieChart } from 'react-native-chart-kit';
 
 // Importa serviços
 import { getAllVagas } from '../services/vagaService';
-import { getAllReservas } from '../services/reservaService';
+import { getAllReservas } from '../services/reservaService'; // <-- Precisamos desta função
 
 // Obter a largura da tela para adaptar o gráfico
 const screenWidth = Dimensions.get('window').width;
@@ -16,43 +17,59 @@ const screenWidth = Dimensions.get('window').width;
 export default function DashboardScreen({ navigation }) {
     const [totalVagas, setTotalVagas] = useState(0);
     const [totalReservas, setTotalReservas] = useState(0);
-    const [reservasPendentes, setReservasPendentes] = useState(0); 
+    const [reservasPendentes, setReservasPendentes] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            setIsLoading(true);
-            try {
-                // 1. Contagem de Vagas
-                const vagas = await getAllVagas();
-                setTotalVagas(vagas.length);
+    // Usamos useFocusEffect para que o dashboard sempre recarregue os dados
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchDashboardData = async () => {
+                setIsLoading(true);
+                try {
+                    // 1. Contagem de Vagas
+                    const vagas = await getAllVagas();
+                    setTotalVagas(vagas.length);
 
-                // 2. Contagem REAL de Reservas
-                const todasReservas = await getAllReservas(); 
-                setTotalReservas(todasReservas.length);
-                
-                // 3. Reservas Pendentes
-                const pendentes = todasReservas.filter(r => r.status === 'Pendente');
-                setReservasPendentes(pendentes.length); 
+                    // 2. Contagem REAL de Reservas
+                    const todasReservas = await getAllReservas();
+                    setTotalReservas(todasReservas.length);
 
-            } catch (error) {
-                console.error("Erro ao carregar dados do Dashboard:", error);
-                setTotalVagas(0);
-                setTotalReservas(0);
-                setReservasPendentes(0);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+                    // 3. Reservas Pendentes
+                    const pendentes = todasReservas.filter(r => r.status === 'Pendente');
+                    setReservasPendentes(pendentes.length);
 
-        fetchDashboardData();
-    }, []);
+                } catch (error) {
+                    console.error("Erro ao carregar dados do Dashboard:", error);
+                    setTotalVagas(0);
+                    setTotalReservas(0);
+                    setReservasPendentes(0);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            fetchDashboardData();
+        }, [])
+    );
 
     // Função para gerar o Data Set do gráfico
     const getChartData = () => {
-        // Garantir que os dados sejam números
-        const vagas = Number(totalVagas);
-        const reservas = Number(totalReservas);
+        // Garante que os dados sejam números e evita divisão por zero se ambos forem 0
+        const vagas = Number(totalVagas) || 0;
+        const reservas = Number(totalReservas) || 0;
+
+        // Se não houver dados, exibe um gráfico "vazio"
+        if (vagas === 0 && reservas === 0) {
+            return [
+                {
+                    name: "Sem Dados",
+                    population: 1,
+                    color: colors.border,
+                    legendFontColor: colors.textSecondary,
+                    legendFontSize: 14
+                }
+            ];
+        }
 
         return [
             {
@@ -71,7 +88,8 @@ export default function DashboardScreen({ navigation }) {
             },
         ];
     };
-    
+
+    // Componente de Card
     const InfoCard = ({ title, value, color }) => (
         <View style={[styles.card, { backgroundColor: color }]}>
             <Text style={styles.cardValue}>{value}</Text>
@@ -82,7 +100,8 @@ export default function DashboardScreen({ navigation }) {
     if (isLoading) {
         return (
             <View style={globalStyles.container}>
-                <Text style={{ color: colors.text }}>Carregando Dashboard...</Text>
+                <ActivityIndicator size="large" color={colors.primary} />
+                <Text style={{ color: colors.text, marginTop: 10 }}>Carregando Dashboard...</Text>
             </View>
         );
     }
@@ -91,51 +110,49 @@ export default function DashboardScreen({ navigation }) {
         <ScrollView style={styles.scrollView}>
             <View style={globalStyles.container}>
                 <Text style={globalStyles.title}>📊 Dashboard de Gerenciamento</Text>
-                
+
                 <Text style={styles.sectionTitle}>Estatísticas Chave</Text>
-                
+
                 <View style={styles.statsContainer}>
-                    <InfoCard 
-                        title="Vagas Cadastradas" 
-                        value={totalVagas} 
-                        color="#4CAF50" // Verde
+                    <InfoCard
+                        title="Vagas Cadastradas"
+                        value={totalVagas}
+                        color="#4CAF50"
                     />
-                    <InfoCard 
-                        title="Total de Reservas" 
-                        value={totalReservas} 
-                        color="#3498db" // Azul
+                    <InfoCard
+                        title="Total de Reservas"
+                        value={totalReservas}
+                        color="#3498db"
                     />
-                    <InfoCard 
-                        title="Reservas Pendentes" 
-                        value={reservasPendentes} 
-                        color="#FFD700" // Amarelo
+                    <InfoCard
+                        title="Reservas Pendentes"
+                        value={reservasPendentes}
+                        color="#FFD700"
                     />
                 </View>
 
-                {/* ÁREA DO GRÁFICO (Substitui o Placeholder) */}
-                <Text style={[styles.sectionTitle, { marginTop: 40 }]}>Proporção Geral</Text>
-                
+                {/* ÁREA DO GRÁFICO */}
+                <Text style={[styles.sectionTitle, { marginTop: 40 }]}>Proporção Geral (Vagas vs Reservas)</Text>
+
                 <View style={styles.chartContainer}>
                     <PieChart
                         data={getChartData()}
                         width={screenWidth * 0.9} // 90% da largura da tela
                         height={220}
                         chartConfig={{
-                            backgroundColor: colors.background,
+                            backgroundColor: 'transparent',
                             backgroundGradientFrom: colors.background,
                             backgroundGradientTo: colors.background,
                             decimalPlaces: 0,
                             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                            labelColor: (opacity = 1) => colors.text,
                         }}
                         accessor={"population"}
-                        backgroundColor={colors.inputBackground}
+                        backgroundColor={"transparent"}
                         paddingLeft={"15"}
-                        center={[10, 50]} // Ajusta a posição do gráfico
-                        absolute // Para mostrar o valor absoluto no tooltip
+                        absolute // Mostra os números absolutos
                     />
                 </View>
-                
+
             </View>
         </ScrollView>
     );
@@ -145,9 +162,6 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         backgroundColor: colors.background,
-    },
-    container: {
-        alignItems: 'center',
     },
     sectionTitle: {
         fontSize: 18,
@@ -173,6 +187,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         alignItems: 'center',
         justifyContent: 'center',
+        minHeight: 100, // Altura mínima para os cards
     },
     cardValue: {
         fontSize: 32,
@@ -185,12 +200,13 @@ const styles = StyleSheet.create({
         marginTop: 5,
         textAlign: 'center',
     },
-    // NOVO ESTILO PARA O CONTAINER DO GRÁFICO
     chartContainer: {
         width: '100%',
         borderRadius: 8,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 20,
+        backgroundColor: colors.inputBackground, // Fundo para o gráfico
+        paddingVertical: 10,
+        marginBottom: 30,
     }
 });
