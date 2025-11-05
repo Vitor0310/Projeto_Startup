@@ -1,9 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, Image } from "react-native";
-import { useFocusEffect } from "@react-navigation/native"; // <--- IMPORT CRUCIAL
+import { getVagasByOwner } from "../services/vagaService";
+import { useFocusEffect } from "@react-navigation/native";
+
 import { globalStyles } from "../styles/globalStyles";
 import { getAllVagas, deleteVaga } from "../services/vagaService";
 import { colors } from "../styles/colors";
+import { getCurrentUserAuth } from "../services/userService";
+
 
 export default function MyVagasScreen({ navigation }) {
     const [myVagas, setMyVagas] = useState([]);
@@ -11,14 +15,14 @@ export default function MyVagasScreen({ navigation }) {
     useFocusEffect(
         useCallback(() => {
             const fetchVagas = async () => {
-                // Em um app real, você buscaria apenas as vagas do usuário logado.
-                const vagasDoLocador = await getAllVagas(); // <- Agora é assíncrono
-                setMyVagas(vagasDoLocador);
+                const user = getCurrentUserAuth();
+                if (user) {
+                    // MUDE AQUI: Chama a função que filtra pelo ID do dono
+                    const vagasDoLocador = await getVagasByOwner(user.uid);
+                    setMyVagas(vagasDoLocador);
+                }
             };
-
             fetchVagas();
-
-            // O código de cleanup (retorno) é opcional aqui, mas é uma boa prática
             return () => { };
         }, [])
     );

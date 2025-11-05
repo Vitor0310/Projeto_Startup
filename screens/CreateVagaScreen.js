@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import { colors } from "../styles/colors";
-import { createVaga } from "../services/vagaService"; // <--- NOVO IMPORT
+import { createVaga } from "../services/vagaService";
+// IMPORTA O SERVIÇO QUE PEGA O USUÁRIO LOGADO:
+import { getCurrentUserAuth } from "../services/userService";
 
 export default function CreateVagaScreen({ navigation }) {
     const [nome, setNome] = useState("");
@@ -11,11 +13,21 @@ export default function CreateVagaScreen({ navigation }) {
     const [tipo, setTipo] = useState(""); // 'coberta' ou 'descoberta'
     const [descricao, setDescricao] = useState("");
 
-    const handleCreateVaga = async () => { // <-- Função agora é assíncrona
+    const handleCreateVaga = async () => {
         if (!nome || !endereco || !preco || !tipo || !descricao) {
             Alert.alert("Erro", "Preencha todos os campos obrigatórios.");
             return;
         }
+
+        // --- CORREÇÃO AQUI ---
+        // 1. Pega o usuário real logado pelo Firebase Auth
+        const user = getCurrentUserAuth();
+        if (!user) {
+            // Se, por algum motivo, o usuário não estiver logado, impede o cadastro
+            Alert.alert("Erro", "Você precisa estar logado para cadastrar uma vaga.");
+            return;
+        }
+        // --- FIM DA CORREÇÃO ---
 
         // Objeto com os dados a serem salvos no Firebase
         const novaVaga = {
@@ -24,8 +36,8 @@ export default function CreateVagaScreen({ navigation }) {
             precoPorHora: parseFloat(preco),
             tipo,
             descricao,
-            locadorId: "mock-user-id",
-            dataCriacao: new Date().toISOString(),
+            locadorId: user.uid, // <-- CORREÇÃO: Usa o ID real do usuário
+            dataCriacao: new Date(), // <-- CORREÇÃO: Usa o objeto Date (melhor para o Firebase)
             localizacao: { latitude: -23.551, longitude: -46.634 }, // Coordenada padrão de SP
             fotos: ["https://via.placeholder.com/150/007BFF/FFFFFF?text=Nova+Vaga"],
         };
@@ -34,9 +46,10 @@ export default function CreateVagaScreen({ navigation }) {
             // Chamada real para salvar no Firebase
             await createVaga(novaVaga);
             Alert.alert("Sucesso", "Vaga cadastrada com sucesso!");
+            // Volta para a tela anterior (provavelmente a Home)
             navigation.goBack();
         } catch (error) {
-            Alert.alert("Erro", error.message);
+            Alert.alert("Erro ao Cadastrar", error.message);
         }
     };
 
@@ -69,7 +82,7 @@ export default function CreateVagaScreen({ navigation }) {
                 />
                 <TextInput
                     style={globalStyles.input}
-                    placeholder="Tipo (ex: coberta ou descoberta)"
+                    _ placeholder="Tipo (ex: coberta ou descoberta)"
                     placeholderTextColor={colors.textSecondary}
                     value={tipo}
                     onChangeText={setTipo}
