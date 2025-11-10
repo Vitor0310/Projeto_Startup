@@ -7,7 +7,7 @@ import { createReserva } from "../services/reservaService";
 import { getCurrentUserAuth } from "../services/userService";
 
 export default function BookingScreen({ navigation, route }) {
-    const { vagaId, vagaNome, localizacao } = route.params;
+    const { vagaId, vagaNome, localizacao, locadorId } = route.params;
     const [date, setDate] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
     const [mode, setMode] = useState('date'); // 'date' ou 'time'
@@ -64,6 +64,7 @@ export default function BookingScreen({ navigation, route }) {
         // 1. Prepara os dados da reserva
         const reservaData = {
             userId: user.uid,
+            locadorId: locadorId,
             vagaId: vagaId,
             vagaNome: vagaNome,
             dataReserva: date, 

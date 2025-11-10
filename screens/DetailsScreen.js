@@ -26,6 +26,7 @@ export default function DetailsScreen({ route, navigation }) {
             vagaId: vaga.id,
             vagaNome: vaga.nome,
             localizacao: vaga.localizacao,
+            locadorId: vaga.locadorId
         });
     };
 
