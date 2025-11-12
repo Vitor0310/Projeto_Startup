@@ -108,7 +108,7 @@ export default function DashboardScreen({ navigation }) {
                                 ]
                             );
                         } catch (error) {
-                            Alert.alert("Erro", "Falha ao atualizar reserva.");
+                            Alert.alert("Erro ao Atualizar", error.message);
                         }
                     },
                 },
